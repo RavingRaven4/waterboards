@@ -28,6 +28,7 @@ link = []
 
 url = 'https://mvlwb.com/registry/W2009C0003'
 
+#swag
 
 def scrape_links_in_div(url, div_class):
     try:
