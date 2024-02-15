@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
+from datetime import datetime
 
 
 
@@ -15,8 +16,8 @@ import time
 
 
 def scrape_table_with_hidden(url):
-    # options = Options()
-    # options.add_argument("--headless")
+    options = Options()
+    options.add_argument("--headless")
     driver = webdriver.Chrome()
     wait = WebDriverWait(driver, 7)
 
@@ -39,17 +40,21 @@ def scrape_table_with_hidden(url):
                 all_data.append(columns)
 
         try:
+            time.sleep(3)
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(3)
             next_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[title="Go to next page"]')))
-            driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
+            #driver.execute_script("arguments[0].scrollIntoView(true);", next_button)
             time.sleep(4)
             next_button.click()
         except TimeoutException:
             break
 
     driver.quit()
+    print(len(all_data))
     return all_data
 
-def save_to_xlsx(data, filename='wk_data22.xlsx'):
+def save_to_xlsx(data, filename):
     df = pd.DataFrame(data[1:], columns=data[0])  # Assuming the first row contains headers
     df.to_excel(filename, index=False)
 
@@ -57,7 +62,8 @@ url = 'https://wlwb.ca/registry?f%5B0%5D=region%3AWek%27%C3%A8ezh%C3%ACi'
 table_data = scrape_table_with_hidden(url)
 
 if table_data:
-    save_to_xlsx(table_data, filename='wk_data22.xlsx')
-    print("Data has been saved to wk_data22.xlsx.")
+    save_to_xlsx(table_data, filename='wekeezhii_data_' + datetime.now().strftime("%d_%m_%Y") + '.xlsx') #-%H%M%S
+    print("Data has been saved")
 else:
     print("No data to save.")
+
