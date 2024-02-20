@@ -16,8 +16,8 @@ from datetime import datetime
 
 
 def scrape_table_with_hidden(url):
-    options = Options()
-    options.add_argument("--headless")
+    # options = Options()
+    # options.add_argument("--headless")
     driver = webdriver.Chrome()
     wait = WebDriverWait(driver, 7)
 
@@ -37,6 +37,13 @@ def scrape_table_with_hidden(url):
         if table:
             for row in table.find_all('tr'):
                 columns = [col.text.strip() for col in row.find_all(['th', 'td'])]
+                # assumption, there's no duplicate entries
+                if not all_data:
+                    pass
+                elif all_data[0][0] == columns[0]:
+                    continue
+                else:
+                    pass
                 all_data.append(columns)
 
         try:
@@ -55,8 +62,12 @@ def scrape_table_with_hidden(url):
     return all_data
 
 def save_to_xlsx(data, filename):
-    df = pd.DataFrame(data[1:], columns=data[0])  # Assuming the first row contains headers
+    df = pd.DataFrame(data[1:], columns=data[0])
+    # be careful renaming columns
+    df.columns = ['company', 'activity', 'file_number', 'start_date', 'expiry_date']
     df.to_excel(filename, index=False)
+
+
 
 url = 'https://wlwb.ca/registry?f%5B0%5D=region%3AWek%27%C3%A8ezh%C3%ACi'
 table_data = scrape_table_with_hidden(url)
